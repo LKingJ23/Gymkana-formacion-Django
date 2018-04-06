@@ -1,0 +1,50 @@
+{% extends "baseItems/layout.html" %}
+{% block head %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'baseItems/style.css' %}">
+{% block title %}<div class="title">Lasts Events and News</div>{% endblock %}
+{% endblock %}
+{% block content %}
+    <div class="left">
+        {% if latest_events_list %}
+            <h1>Events</h1>
+            <ul>
+                {% for event in latest_events_list %}
+                    <li><a href="{% url 'baseItems:detailEvent' event.id %}">{{ event.title }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No events are available</p>
+        {% endif %}
+        <p>
+            Using Classes
+            <br/>
+            <a href="{% url 'baseItems:createEventClass' %}"><button type="button">Create Event</button></a>
+            <a href="{% url 'baseItems:eventsClass' %}"><button type="button">List Events</button></a>
+        </p>
+    </div>
+    <div class="right">
+        {% if latest_news_list %}
+            <h1>News</h1>
+            <ul>
+                {% for new in latest_news_list %}
+                    <li><a href="{% url 'baseItems:detailNew' new.id %}">{{ new.title }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No news are available</p>
+        {% endif %}
+        <p>
+            Using Functions
+            <br/>
+            <a href="{% url 'baseItems:createNew' %}"><button type="button">Create New</button></a>
+            <a href="{% url 'baseItems:news' %}"><button type="button">List News</button></a>
+        </p>
+        <p>
+            Using Classes
+            <br/>
+            <a href="{% url 'baseItems:createNewClass' %}"><button type="button">Create New</button></a>
+            <a href="{% url 'baseItems:newsClass' %}"><button type="button">List News</button></a>
+        </p>
+    </div>
+{% endblock %}
