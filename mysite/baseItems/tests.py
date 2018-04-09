@@ -7,6 +7,7 @@ from django.utils import timezone
 from os import listdir
 import datetime
 from datetime import date, timedelta
+from rest_framework.test import APITestCase
 
 from .models import Event, New
 
@@ -143,7 +144,7 @@ class NewTestCase(TestCase):
         num_elem_aft = New.objects.count()
         self.assertEqual(num_elem_aft, num_elem_bef)
 
-    def test_delete_post_not_default_image(self):
+    def test_delete_not_default_image(self):
         upload_file = open(settings.MEDIA_ROOT + '/img/indice.jpeg', 'rb')
         url = reverse("baseItems:createNew")
         data = {"title": "crearnoticiatest", "subtitle": "subtitulotest", "body": "cuerpazotest", "image": upload_file}
@@ -219,7 +220,7 @@ class EventTestCase(TestCase):
         num_events_aft = Event.objects.count()
         self.assertEqual(num_events_aft, num_events_bef)
 
-    def test_update_post_class(self):
+    def test_update_events_post_class(self):
         start_date = datetime.date.today()
         end_date = date.today() + timedelta(20)
         event = Event.objects.create(title="eventotestupdate", subtitle="subtitulotest", body="cuerpotest", start_date=start_date, end_date=end_date)
@@ -235,11 +236,57 @@ class EventTestCase(TestCase):
         num_elem_aft = Event.objects.count()
         self.assertEqual(num_elem_aft, num_elem_bef)
 
-    def test_delete_post_not_default_image(self):
+    def test_delete_events(self):
         start_date = datetime.date.today()
         end_date = date.today() + timedelta(20)
         event = Event.objects.create(title="eventotestdelete", subtitle="subtitulotest", body="cuerpotest", start_date=start_date, end_date=end_date)
         url = reverse("baseItems:deleteEventClass", kwargs={"pk": event.pk})
+
         event_delete = self.client.post(url)
         self.assertEqual(event_delete.status_code, 302)
+        self.assertEqual(Event.objects.count(), 0)
+
+
+class EventAPITestCase(APITestCase):
+    def setUp(self):
+        start_date = datetime.date.today()
+        end_date = date.today() + timedelta(20)
+        Event.objects.create(title="eventoTest", subtitle="subbbb", body="bboooody", start_date=start_date, end_date=end_date)
+
+    def test_api_view_events(self):
+        response = self.client.get(reverse("baseItems:EventsListAPI"))
+        self.assertEqual(response.status_code, 200)
+
+    def test_api_create_event(self):
+        num_elem_before = Event.objects.count()
+        url = reverse("baseItems:EventsListAPI")
+        data = {"title": "eventorest", "subtitle": "desc", "body": "bodytest", "start_date": "2005-05-05", "end_date": "2025-05-05"}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+        num_elem_aft = Event.objects.count()
+        self.assertEqual(num_elem_aft, num_elem_before + 1)
+
+    def test_api_update_event(self):
+
+        num_elem_bef = Event.objects.count()
+        event = Event.objects.get(title="eventoTest")
+
+        url = reverse("baseItems:EventsDetailAPI", kwargs={"pk": event.pk})
+        data = {'title': 'updateEvento',
+                'subtitle': 'subtitulotest',
+                'body': 'cuerpotest',
+                'start_date': '2010-10-10',
+                'end_date': '2015-12-12'}
+
+        update_event = self.client.put(url, data, format='json')
+        self.assertEqual(update_event.status_code, 200)
+        num_elem_aft = Event.objects.count()
+        self.assertEqual(num_elem_aft, num_elem_bef)
+
+    def test_api_delete_event(self):
+        event = Event.objects.get(title="eventoTest")
+
+        url = reverse("baseItems:EventsDetailAPI", kwargs={"pk": event.pk})
+        response = self.client.delete(url, format="json")
+        self.assertEqual(response.status_code, 204)
         self.assertEqual(Event.objects.count(), 0)
