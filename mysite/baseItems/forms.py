@@ -28,7 +28,10 @@ class EventsForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = '__all__'
-        widgets = {'start_date': forms.widgets.SelectDateWidget(years=range(2000, 2020)), 'end_date': forms.widgets.SelectDateWidget(years=range(2000, 2025))}
+        widgets = {
+            'start_date': forms.widgets.SelectDateWidget(years=range(2000, 2020)),
+            'end_date': forms.widgets.SelectDateWidget(years=range(2000, 2025))
+        }
 
     def clean(self):
         cleaned_data = super(EventsForm, self).clean()

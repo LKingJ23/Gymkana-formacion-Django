@@ -156,6 +156,11 @@ class EventsListAPI(generics.ListCreateAPIView):
     queryset = Event.objects.all().order_by('end_date')
     serializer_class = EventSerializer
 
+    def list(self, request, *args, **kwargs):
+        response = super(EventsListAPI, self).list(request, *args, **kwargs)
+        response.data.append({"event_counter": Event.objects.count()})
+        return response
+
 
 class EventsDetailAPI(generics.RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
